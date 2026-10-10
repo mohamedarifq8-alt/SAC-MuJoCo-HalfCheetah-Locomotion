@@ -7,39 +7,46 @@
 [![NumPy](https://img.shields.io/badge/NumPy-Mathematics-013243?logo=numpy&logoColor=white)](https://numpy.org/)
 [![Kaggle](https://img.shields.io/badge/Kaggle-Model_Training-20BEFF?logo=kaggle&logoColor=white)](https://www.kaggle.com/)
 
-This repository documents the engineering journey of training a 2D bipedal robot (HalfCheetah) to run using the **Soft Actor-Critic (SAC)** algorithm[cite: 28]. The project highlights advanced Reinforcement Learning concepts, specifically addressing "Reward Hacking" (Local Minima) through custom Reward Shaping and Environment Wrappers[cite: 38, 47].
+This repository documents the engineering journey of training a 2D bipedal robot (HalfCheetah) to run using the **Soft Actor-Critic (SAC)** algorithm[cite: 28]. The project highlights advanced Reinforcement Learning concepts, specifically addressing "Reward Hacking" (Local Minima) through custom Reward Shaping and Environment Wrappers.
 
 ---
+<img width="473" height="385" alt="images (1)" src="https://github.com/user-attachments/assets/b37e62ed-090d-45ce-8a89-d0ee45432142" />
+
+
+
+
+<img width="473" height="385" alt="Screenshot" src="https://github.com/user-attachments/assets/f9bbf2c9-3f31-4672-b486-a9b072a7d611" />
+
 
 ## 🛤️ The Journey (Project Phases)
 
 This project transitioned from basic continuous control to solving complex locomotion dynamics:
 
 ### Phase 1: Environment Anatomy (MDP Formulation)
-- **Description:** Deconstructing the physical properties of the HalfCheetah[cite: 27].
-- **Action Space:** 6-dimensional continuous space controlling the torque of the thighs, knees, and ankles for both front and back legs[cite: 27].
-- **Observation Space:** 17-dimensional vector containing joint angles and velocities[cite: 27, 29]. The absolute X-coordinate was intentionally excluded to ensure **Spatial Generalization** (learning how to run, not just memorizing locations)[cite: 29].
+- **Description:** Deconstructing the physical properties of the HalfCheetah.
+- **Action Space:** 6-dimensional continuous space controlling the torque of the thighs, knees, and ankles for both front and back legs.
+- **Observation Space:** 17-dimensional vector containing joint angles and velocities. The absolute X-coordinate was intentionally excluded to ensure **Spatial Generalization** (learning how to run, not just memorizing locations).
 
 ### Phase 2: The "Reward Hacking" Trap
-- **Description:** During initial training, the agent discovered a Local Minima[cite: 38]. Because the environment does not terminate upon falling, the agent learned that flipping on its back and crawling was more energy-efficient than trying to run and stumbling[cite: 38]. 
-- **Result:** The agent achieved a deceptive score by crawling upside down, mathematically satisfying the reward function without solving the intended locomotion task[cite: 38].
+- **Description:** During initial training, the agent discovered a Local Minima. Because the environment does not terminate upon falling, the agent learned that flipping on its back and crawling was more energy-efficient than trying to run and stumbling. 
+- **Result:** The agent achieved a deceptive score by crawling upside down, mathematically satisfying the reward function without solving the intended locomotion task.
 
 ### Phase 3: Custom Reward Engineering (The Fix)
-- **Description:** Instead of blindly training for millions of extra steps to escape the local minima, we applied **Reward Shaping**[cite: 46, 47].
+- **Description:** Instead of blindly training for millions of extra steps to escape the local minima, we applied **Reward Shaping**.
 - **Techniques Used:**
-  * Developed a Custom Gym Wrapper (`UprightCheetahWrapper`)[cite: 47].
-  * Monitored the agent's Torso Pitch Angle (`obs[1]`)[cite: 47].
-  * Implemented a harsh continuous penalty if the pitch exceeded `1.0` radian (~57 degrees), immediately punishing the agent for attempting to flip[cite: 47, 48].
-- **Result:** The agent quickly learned to abandon the crawling strategy, stood upright, and discovered the optimal running gait, skyrocketing the score to **~2310 points** in just 100,000 steps[cite: 49, 53].
+  * Developed a Custom Gym Wrapper (`UprightCheetahWrapper`).
+  * Monitored the agent's Torso Pitch Angle (`obs[1]`).
+  * Implemented a harsh continuous penalty if the pitch exceeded `1.0` radian (~57 degrees), immediately punishing the agent for attempting to flip.
+- **Result:** The agent quickly learned to abandon the crawling strategy, stood upright, and discovered the optimal running gait, skyrocketing the score to **~2310 points** in just 100,000 steps.
 
 ---
 
 ## 🧠 Core Concepts Explored
 
-- **Soft Actor-Critic (SAC):** Utilizing Maximum Entropy RL, allowing the algorithm to automatically tune exploration (`ent_coef="auto"`) and find the most robust running style[cite: 28, 31].
-- **Reward Shaping & Wrappers:** Modifying raw environment observations to enforce physical constraints and guide the AI away from loopholes[cite: 47].
-- **Spatial Generalization:** Removing absolute positional data so the neural network focuses purely on locomotion dynamics[cite: 29].
-- **Local Minima Escape:** Recognizing and structurally fixing reward hacking instead of relying solely on brute-force training time[cite: 47].
+- **Soft Actor-Critic (SAC):** Utilizing Maximum Entropy RL, allowing the algorithm to automatically tune exploration (`ent_coef="auto"`) and find the most robust running style.
+- **Reward Shaping & Wrappers:** Modifying raw environment observations to enforce physical constraints and guide the AI away from loopholes.
+- **Spatial Generalization:** Removing absolute positional data so the neural network focuses purely on locomotion dynamics.
+- **Local Minima Escape:** Recognizing and structurally fixing reward hacking instead of relying solely on brute-force training time.
 
 ---
 
